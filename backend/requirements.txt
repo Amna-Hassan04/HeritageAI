@@ -1,7 +1,18 @@
+# Web Framework
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
-pillow
-google-generativeai
+
+# Environment Variables
 python-dotenv
+
+# AI, Image Processing, and APIs
+pillow
+opencv-python-headless
+google-generativeai
 google-genai
+
+# PyTorch (CPU-only version to save memory/build time on Render)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision

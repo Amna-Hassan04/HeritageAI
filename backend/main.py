@@ -24,6 +24,16 @@ from curator.gemini_client import run_gemini
 from curator.curator_logic import curate
 from curator.prompts import CURATOR_PROMPT
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Change to your Vercel URL later for security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI()
 print("Starting FastAPI server...")
