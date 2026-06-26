@@ -1,0 +1,17 @@
+# Core ML
+torch>=2.0.0
+torchvision>=0.15.0
+git+https://github.com/openai/CLIP.git
+ 
+# Image processing
+Pillow>=10.0.0
+numpy>=1.24.0
+ 
+# API server
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9    # required for FastAPI file uploads
+ 
+# Utilities
+pydantic>=2.0.0
+ 

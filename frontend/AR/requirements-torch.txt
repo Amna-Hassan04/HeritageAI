@@ -1,0 +1,10 @@
+# Install with:
+#   pip install --default-timeout=600 --retries=10 -r requirements-torch.txt --index-url https://download.pytorch.org/whl/cpu
+#
+# CPU-only versions (much smaller, plenty for CLIP inference on a laptop).
+# If you have an NVIDIA GPU and want CUDA, change the index-url to:
+#   https://download.pytorch.org/whl/cu121     (CUDA 12.1)
+#   https://download.pytorch.org/whl/cu118     (CUDA 11.8)
+
+torch>=2.1.0
+torchvision>=0.16.0

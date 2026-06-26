@@ -1,0 +1,21 @@
+; ─────────────────────────────────────────────────────────────────
+; Optional: a per-user pip config so you don't have to type
+; --default-timeout=600 --retries=10 every single time.
+;
+; HOW TO USE THIS FILE ON WINDOWS:
+;   1. Create the folder if it doesn't exist:
+;        %APPDATA%\pip\
+;      (paste that into File Explorer's address bar)
+;   2. Save this file there as exactly:  pip.ini
+;      (NOT pip.conf — Windows uses pip.ini)
+;   3. Delete this .txt copy in the project folder if you want.
+;
+; After this, every `pip install ...` you run uses these settings.
+; ─────────────────────────────────────────────────────────────────
+
+[global]
+timeout = 600
+retries = 10
+
+[install]
+no-cache-dir = false

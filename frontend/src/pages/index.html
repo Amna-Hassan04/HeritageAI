@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Museum Curator</title>
+  <link rel="stylesheet" href="styles/curator.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    // ImageInput Component
+    function ImageInput({ label, mode, onSelect }) {
+      const fileInputRef = useRef(null);
+      const [showCamera, setShowCamera] = useState(false);
+      const videoRef = useRef(null);
+      const streamRef = useRef(null);
+
+      const handleClick = () => {
+        if (mode === 'upload') {
+          fileInputRef.current?.click();
+        } else {
+          setShowCamera(true);
+        }
+      };
+
+      const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            onSelect(event.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      useEffect(() => {
+        if (showCamera && videoRef.current) {
+          navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+              streamRef.current = stream;
+              videoRef.current.srcObject = stream;
+            })
+            .catch(err => {
+              alert('Unable to access camera: ' + err.message);
+              setShowCamera(false);
+            });
+        }
+        return () => {
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+          }
+        };
+      }, [showCamera]);
+
+      const capturePhoto = () => {
+        const video = videoRef.current;
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const imageSrc = canvas.toDataURL('image/jpeg');
+        closeCamera();
+        onSelect(imageSrc);
+      };
+
+      const closeCamera = () => {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+        }
+        setShowCamera(false);
+      };
+
+      return (
+        <>
+          <div className="input-card">
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+            />
+            <div className="drop-zone" onClick={handleClick}>
+              <h3>{label}</h3>
+              <p style={{ color: '#718096' }}>Click to {mode === 'upload' ? 'browse files' : 'open camera'}</p>
+            </div>
+          </div>
+
+          {showCamera && (
+            <div className="camera-modal">
+              <div className="camera-header">
+                <h2>📷 Camera</h2>
+                <button className="camera-close" onClick={closeCamera}>✕</button>
+              </div>
+              <div className="camera-view">
+                <video ref={videoRef} autoPlay playsInline className="camera-video" />
+              </div>
+              <div className="camera-controls">
+                <button className="capture-btn" onClick={capturePhoto}>
+                  📸 Captu re
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    // ImagePreview Component
+    function ImagePreview({ image }) {
+      return (
+        <div className="preview-container">
+          <div className="preview-wrapper">
+            <img src={image} alt="Preview" className="preview-image" />
+          </div>
+        </div>
+      );
+    }
+
+    // Loading Component
+    function Loading() {
+      return (
+        <div className="loading">
+          <span>🔄 Analyzing artwork...</span>
+        </div>
+      );
+    }
+
+    // CuratorResult Component
+    function CuratorResult({ result }) {
+      return (
+        <div className="result-container">
+          <h3 className="result-title">🎨 Curation Result</h3>
+          <div className="result-content">
+            <p><strong>Title:</strong> {result.title}</p>
+            <p><strong>Style:</strong> {result.style}</p>
+            <p><strong>Period:</strong> {result.period}</p>
+            <p><strong>Description:</strong> {result.description}</p>
+            <p><strong>Recommended Exhibition:</strong> {result.exhibition}</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Main CuratorPage Component
+    function CuratorPage() {
+      const [image, setImage] = useState(null);
+      const [result] = useState(null);
+      const [loading] = useState(false);
+
+      return (
+        <div className="page">
+          <div className="container">
+            <h1 className="title">📸 AI Museum Curator</h1>
+
+            {/* TWO-COLUMN RESPONSIVE GRID */}
+            <div className="input-grid">
+              <ImageInput
+                label="📁 Upload from Gallery"
+                mode="upload"
+                onSelect={setImage}
+              />
+              <ImageInput
+                label="📷 Capture from Camera"
+                mode="camera"
+                onSelect={setImage}
+              />
+            </div>
+
+            {!image && (
+              <div className="hint">
+                👆 Upload or capture an image to start curation
+              </div>
+            )}
+
+            {image && (
+              <>
+                <ImagePreview image={image} />
+
+                {loading && <Loading />}
+
+                {result && <CuratorResult result={result} />}
+              </>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<CuratorPage />);
+  </script>
+</body>
+</html>

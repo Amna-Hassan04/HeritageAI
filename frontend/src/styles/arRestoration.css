@@ -1,0 +1,107 @@
+/* Container sizing to hold the absolute-positioned camera background */
+.ar-puzzle-container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    /* CRITICAL FIX: Must be completely transparent so the camera video element behind it can show through */
+    background-color: transparent !important;
+    color: #ffffff;
+    padding-top: 80px; /* Offset to clear the fixed top navbar */
+    box-sizing: border-box;
+}
+
+/* CRITICAL FIX: Force the raw camera video track injected by Mind-AR to occupy full-viewport scaling dimensions */
+video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+    z-index: 0 !important; /* Establishes the bedrock layer of the feature view */
+}
+
+/* Forces the underlying A-Frame engine context canvas to layout correctly beneath UI panels */
+.ar-puzzle-container a-scene {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1 !important; /* Layer directly above the video track */
+}
+
+/* UI Overlays styled to match HeritageAI dark luxury aesthetic */
+.ar-overlay-ui {
+    position: relative;
+    z-index: 20; /* High index ensures text panels, game grids, and interactive nodes hover on TOP of AR */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    pointer-events: none; /* Allows pointer contexts to pass cleanly through the empty background areas */
+}
+
+/* Enable pointer events explicitly for your interaction cards and button components */
+.ar-instruction-card,
+.ar-puzzle-canvas,
+.ar-btn-scramble {
+    pointer-events: auto;
+}
+
+.ar-instruction-card {
+    background: rgba(18, 18, 18, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid #c5a880; /* Core theme gold */
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.ar-status-badge {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: rgba(197, 168, 128, 0.15);
+    border: 1px dashed #c5a880;
+    color: #c5a880;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Interactive 2D HTML5 Canvas styling */
+.ar-puzzle-canvas {
+    border: 3px solid #c5a880;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+    background-color: #1a1a1a;
+    max-width: 90vw;
+    max-height: 65vh;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: transform 0.2s ease;
+}
+
+.ar-btn-scramble {
+    margin-top: 24px;
+    background-color: #c5a880;
+    color: #121212;
+    border: none;
+    padding: 12px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(197, 168, 128, 0.3);
+    transition: all 0.2s ease;
+}
+
+.ar-btn-scramble:hover {
+    background-color: #d4bc9c;
+    transform: translateY(-2px);
+}

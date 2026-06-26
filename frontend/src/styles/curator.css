@@ -1,0 +1,367 @@
+/* ========= PAGE LAYOUT ========= */
+
+.page {
+  /* height: 100vh;
+  max-height: 100vh;
+  overflow: hidden; */
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f0f2f6, #ffffff);
+}
+
+.container {
+  max-width: 900px;
+  /* height: 100%;
+  max-height: 100vh; */
+  margin: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  /* overflow: hidden; */
+}
+
+.title {
+  text-align: center;
+  font-size: 2.4rem;
+  color: #1f77b4;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* ========= INPUT CARDS ========= */
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  flex-shrink: 0;
+}
+
+.input-card h3 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #262730;
+}
+
+.drop-zone {
+  border: 2px dashed #cbd5e0;
+  border-radius: 10px;
+  padding: 2rem 1.5rem;
+  background: white;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.drop-zone:hover {
+  border-color: #1f77b4;
+  background: #f8fafc;
+}
+
+/* ========= HINT / LOADING ========= */
+
+.hint {
+  margin-top: 2rem;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #1976d2;
+  flex-shrink: 0;
+}
+
+.loading {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  flex-shrink: 0;
+}
+
+/* ========= IMAGE PREVIEW ========= */
+
+.preview-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.preview-wrapper {
+  position: relative;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 50vh;
+  height: auto;
+}
+
+/* (old result-container kept for safety; not used by new component)
+   You can remove it later if unused. */
+.result-container {
+  margin-top: 1rem;
+  max-height: 25vh;
+  overflow-y: auto;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  flex-shrink: 0;
+}
+
+.result-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1f77b4;
+  margin-bottom: 1rem;
+}
+
+.result-content p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+/* ========= CAMERA MODAL ========= */
+
+.camera-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.camera-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  flex-shrink: 0;
+}
+
+.camera-header h2 {
+  color: white;
+  font-size: 1.3rem;
+}
+
+.camera-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.camera-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.camera-video {
+  max-height: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.camera-controls {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.capture-btn {
+  background: white;
+  color: #1f2937;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.capture-btn:hover {
+  background: #f3f4f6;
+}
+
+/* ========= RESULT CARDS (CuratorResult) ========= */
+
+.result-card {
+  margin-top: 2rem;
+  padding: 1.75rem 2rem;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.result-card .result-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.result-subtitle {
+  margin: 0 0 1.25rem;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Grid of interpretations */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Individual interpretation card */
+.interpretation-card {
+  padding: 1.1rem 1.25rem;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.interpretation-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.interpretation-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.interpretation-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.interpretation-description {
+  margin: 0.3rem 0 0.7rem;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.interpretation-meta p {
+  margin: 0.1rem 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+/* Confidence bar */
+.interpretation-confidence {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+.confidence-bar-track {
+  position: relative;
+  margin-top: 0.3rem;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.confidence-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+/* ========= RESPONSIVE ========= */
+
+@media (max-width: 768px) {
+  .input-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .container {
+    padding: 1rem;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .drop-zone {
+    padding: 1.5rem 1rem;
+  }
+  
+  .preview-image {
+    max-height: 35vh;
+  }
+  
+  .result-container {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .result-card {
+    padding: 1.5rem 1.25rem;
+  }
+}
+/* Row with speaker + text */
+.interpretation-description-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0.3rem 0 0.7rem;
+}
+
+/* Override earlier margin if needed */
+.interpretation-description {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+/* Speaker (TTS) button */
+.tts-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.05rem; /* align with first text line */
+  font-size: 1rem;
+  line-height: 1;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tts-button:hover {
+  color: #2563eb;
+}
+
+.tts-button--active {
+  color: #16a34a;
+}
