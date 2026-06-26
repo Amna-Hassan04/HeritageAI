@@ -26,6 +26,8 @@ from curator.prompts import CURATOR_PROMPT
 
 from fastapi.middleware.cors import CORSMiddleware
 
+app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # Change to your Vercel URL later for security
@@ -35,7 +37,6 @@ app.add_middleware(
 )
 
 # ── App ───────────────────────────────────────────────────────────────────────
-app = FastAPI()
 print("Starting FastAPI server...")
 
 app.add_middleware(
