@@ -40,7 +40,7 @@ class CompleteItinerary(BaseModel):
 # Isolated model client utilizing your unique environment variable
 CUSTOM_KEY = os.getenv("TOUR_PLANNER_GEMINI_KEY")
 llm = ChatGoogleGenerativeAI(
-    model="models/gemini-2.0-flash",
+    model="models/Gemma-4-26B",
     temperature=0,
     google_api_key=CUSTOM_KEY if CUSTOM_KEY else "dummy_key_fallback"
 )
