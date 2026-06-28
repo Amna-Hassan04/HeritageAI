@@ -10,6 +10,9 @@ import base64
 import cv2
 import torch
 import urllib.request
+import urllib.parse
+import httpx
+import asyncio
 from io import BytesIO
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -23,13 +26,14 @@ from restoration import handle_restoration_request
 from curator.gemini_client import run_gemini
 from curator.curator_logic import curate
 from curator.prompts import CURATOR_PROMPT
+from planner_router import router as planner_router # Fixed import
 
 # ── 1. Create App and Assign Middleware First ─────────────────────────────────
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allows your Vercel frontend to connect
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -62,7 +66,7 @@ if GEMINI_API_KEY:
     try:
         import google.generativeai as genai
         genai.configure(api_key=GEMINI_API_KEY)
-        gemini_model   = genai.GenerativeModel("gemini-2.5-flash")
+        gemini_model   = genai.GenerativeModel("gemini-2.0-flash")
         GEMINI_ENABLED = True
         print("✅ Gemini enabled")
     except Exception as e:
@@ -421,9 +425,6 @@ async def ar_visualize(payload: dict):
     )
 
     try:
-        import urllib.parse
-        import httpx
-
         encoded_prompt = urllib.parse.quote(prompt)
         image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=768&height=768&nologo=true&model=flux"
 
@@ -446,10 +447,6 @@ async def ar_visualize(payload: dict):
 
 @app.post("/ar/illustrate")
 async def ar_illustrate(payload: dict):
-    import urllib.parse
-    import httpx
-    import asyncio
-
     artifact_id = str(payload.get("artifact_id", "unknown")).strip()
     title       = payload.get("title", "Gandharan Buddha statue")
     material    = payload.get("material", "grey schist")
@@ -520,7 +517,7 @@ async def ar_illustrate(payload: dict):
         raise HTTPException(status_code=500, detail="Image generation failed")
 
     front_file.write_bytes(front_bytes)
-    back_file.write_bytes(back_bytes)
+    back_file.write_bytes(back_files := back_bytes)
 
     return {
         "front_base64": base64.b64encode(front_bytes).decode(),
@@ -542,12 +539,13 @@ def ar_feedback(payload: FeedbackPayload):
         f.write(json.dumps(entry) + "\n")
     return {"status": "logged"}
 
+# ── 7. Router Setup ──────────────────────────────────────────────────────────
 try:
-    from .planner_router import router as planner_router
     app.include_router(planner_router)
     print("✅ planner_router successfully loaded")
 except Exception as e:
     print(f"❌ planner_router failed to load. The exact error is: {e}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
