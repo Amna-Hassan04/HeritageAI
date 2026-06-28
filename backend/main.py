@@ -33,8 +33,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=[
+        "https://heritage-ai-fyp-git-main-amna-hassan04s-projects.vercel.app",
+        "http://localhost:5173", # Standard Vite dev port
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
