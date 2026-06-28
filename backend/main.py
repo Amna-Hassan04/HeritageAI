@@ -545,8 +545,9 @@ def ar_feedback(payload: FeedbackPayload):
 try:
     from .planner_router import router as planner_router
     app.include_router(planner_router)
-except ImportError:
-    print("⚠️ planner_router not found, skipping.")
+    print("✅ planner_router successfully loaded")
+except Exception as e:
+    print(f"❌ planner_router failed to load. The exact error is: {e}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
