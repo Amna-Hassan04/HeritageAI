@@ -74,6 +74,8 @@ class IntentClassification(BaseModel):
 
 def guardrail_node(state: AgentState):
     if not os.getenv("TOUR_PLANNER_GEMINI_KEY"):
+        raise ValueError("TOUR_PLANNER_GEMINI_KEY is not set in environment variables.")
+
         return {"is_valid_intent": True, "api_validation_errors": []}
 
     structured_llm = llm.with_structured_output(IntentClassification)
