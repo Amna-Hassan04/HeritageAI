@@ -17,3 +17,6 @@ google-genai
 torch
 torchvision
 open_clip_torch
+langchain-core
+langchain-google-genai
+langgraph
