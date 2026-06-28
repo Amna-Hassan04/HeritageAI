@@ -47,19 +47,17 @@ export default function TourPlannerPage() {
     setAgentStatus('🌐 Validator Node processing real-time News API travel warnings...');
 
     try {
-          // Get base URL and ensure it doesn't end with a slash
-          const rawBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-          const baseUrl = rawBase.replace(/\/$/, "");
+      // FIX: Use VITE_API_BASE_URL from environment variables for production
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-          // Construct the path starting with a single slash
-          const response = await fetch(`${baseUrl}/api/planner`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user_input: inputPrompt }),
-          });
-          
+      const response = await fetch(`${baseUrl}api/planner`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_input: inputPrompt }),
+      });
+
       if (!response.ok) throw new Error(`Network returned code: ${response.status}`);
       const data = await response.json();
 
