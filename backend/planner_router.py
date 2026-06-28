@@ -40,7 +40,7 @@ class CompleteItinerary(BaseModel):
 # Isolated model client utilizing your unique environment variable
 CUSTOM_KEY = os.getenv("TOUR_PLANNER_GEMINI_KEY")
 llm = ChatGoogleGenerativeAI(
-    model="models/gemini-2.5-flash",
+    model="models/gemini-2.0-flash",
     temperature=0,
     google_api_key=CUSTOM_KEY if CUSTOM_KEY else "dummy_key_fallback"
 )
@@ -94,7 +94,6 @@ def planner_node(state: AgentState):
         return {}
 
     try:
-        # Use Gemini Structured Output to bind the response to our strict schema
         structured_planner = llm.with_structured_output(CompleteItinerary)
 
         system_prompt = (
@@ -111,13 +110,11 @@ def planner_node(state: AgentState):
             HumanMessage(content=user_prompt)
         ])
 
-        # Unpack the Pydantic class object down into standard serializable dictionary items
         itinerary_data = [day.model_dump() for day in response.itinerary]
         return {"raw_itinerary": itinerary_data}
 
     except Exception as e:
         print(f"Dynamic itinerary generation failed, applying template fallback. Error: {e}")
-        # Secure baseline fallback array so your frontend layout never drops or crashes
         return {
             "raw_itinerary": [
                 {
@@ -141,7 +138,6 @@ def validator_node(state: AgentState):
 
     itinerary_text = str(itinerary).lower() if itinerary else ""
 
-    # Loop over active hazards to scan for matching regional keywords
     for hazard in live_hazards:
         h_lower = hazard.lower()
         if any(city in h_lower for city in ["lahore", "taxila", "karachi", "islamabad", "peshawar", "swat", "multan"]):
@@ -151,7 +147,6 @@ def validator_node(state: AgentState):
     return {
         "live_warnings_found": live_hazards,
         "api_validation_errors": errors,
-        # Preserve the dynamic itinerary structure cleanly so text output is sent straight to the UI alongside warnings
         "verified_itinerary": itinerary
     }
 
@@ -160,7 +155,6 @@ def route_after_guardrail(state: AgentState):
     return "planner" if state["is_valid_intent"] else "fallback"
 
 def route_after_validation(state: AgentState):
-    # Finish the state execution sequence to return payload structure back to client
     return END
 
 # Compile Stateful Graph Build
@@ -176,7 +170,8 @@ workflow.add_conditional_edges("validator", route_after_validation, {END: END})
 
 agent_api_pipeline = workflow.compile()
 
-@router.post("/api/planner")
+# FIX: Simplified route path, will be prefixed by /api in main.py
+@router.post("/planner")
 async def run_planner(payload: PlannerRequest):
     initial_state = {
         "user_input": payload.user_input,

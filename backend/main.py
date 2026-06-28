@@ -541,8 +541,9 @@ def ar_feedback(payload: FeedbackPayload):
 
 # ── 7. Router Setup ──────────────────────────────────────────────────────────
 try:
-    app.include_router(planner_router)
-    print("✅ planner_router successfully loaded")
+    # FIX: Adding prefix="/api" ensures /api/planner is routed to your planner_router
+    app.include_router(planner_router, prefix="/api")
+    print("✅ planner_router successfully loaded with /api prefix")
 except Exception as e:
     print(f"❌ planner_router failed to load. The exact error is: {e}")
 
