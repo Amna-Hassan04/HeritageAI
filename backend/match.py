@@ -1,86 +1,80 @@
-"""
-match.py (backend)
-Region-Selective + Always Return Best Match
-"""
-
 import json
 import sys
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional, Tuple
 
 import numpy as np
 import open_clip
 import torch
 from PIL import Image
 
-MODEL_NAME = "ViT-L-14"
-PRETRAINED = "laion2b_s32b_b82k"
-
-# Lowered significantly — "do it anyway" mode
+# Configuration
+MODEL_NAME = "ViT-B-32" # Changed to B-32: Much lighter than L-14, fits in 512MB RAM
+PRETRAINED = "laion2b_s34b_b79k"
 CONFIDENCE_THRESHOLD = 0.50
-
 
 class ArtifactMatcher:
     def __init__(self, index_dir="index", device: str = None):
-        print("🚀 RUNNING FINAL REGION-SELECTIVE MATCHER")
+        print("🚀 INITIALIZING ARTIFACT MATCHER (Lazy Loading)")
         self.index_dir = Path(index_dir)
 
+        # Determine device
         if device is None:
-            if torch.cuda.is_available():
-                device = "cuda"
-            elif torch.backends.mps.is_available():
-                device = "mps"
-            else:
-                device = "cpu"
-        self.device = device
+            self.device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+        else:
+            self.device = device
 
-        self.model, _, self.preprocess = open_clip.create_model_and_transforms(
-            MODEL_NAME, pretrained=PRETRAINED
-        )
-        self.model = self.model.to(device).eval()
-
-        self.embeddings = np.load(self.index_dir / "embeddings.npy")
+        # Load metadata only (Keep the model and embeddings out of memory until needed)
         self.labels: List[str] = json.loads((self.index_dir / "labels.json").read_text())
         self.meta = json.loads((self.index_dir / "meta.json").read_text())
 
-        assert self.embeddings.shape[0] == len(self.labels)
-
-        self._by_label: Dict[str, np.ndarray] = {}
+        # Prepare lookup dictionary
+        self._by_label: Dict[str, List[int]] = {}
         for i, lab in enumerate(self.labels):
             self._by_label.setdefault(lab, []).append(i)
-        self._by_label = {k: np.array(v) for k, v in self._by_label.items()}
+
+        # Model placeholders
+        self._model = None
+        self._preprocess = None
+        self._embeddings = None
+
+    def _load_resources(self):
+        """Lazy load heavy resources only when a match is requested."""
+        if self._model is None:
+            print("📦 Loading CLIP Model and Embeddings into RAM...")
+            # Use the lighter ViT-B-32 model
+            self._model, _, self._preprocess = open_clip.create_model_and_transforms(
+                MODEL_NAME, pretrained=PRETRAINED
+            )
+            self._model = self._model.to(self.device).eval()
+            self._embeddings = np.load(self.index_dir / "embeddings.npy")
+            print("✅ Resources Loaded")
 
     def _get_regions(self, img: Image.Image) -> List[Image.Image]:
         w, h = img.size
-        regions = []
-        regions.append(img)  # full image
-
+        regions = [img]
+        # Only perform necessary crops
         crop_size = int(min(w, h) * 0.75)
-        left = (w - crop_size) // 2
-        top = (h - crop_size) // 2
-        regions.append(img.crop((left, top, left + crop_size, top + crop_size)))
-
-        regions.append(img.crop((0, 0, w, int(h * 0.65))))   # upper
-        regions.append(img.crop((0, int(h * 0.35), w, h)))   # lower
+        regions.append(img.crop(((w-crop_size)//2, (h-crop_size)//2, (w+crop_size)//2, (h+crop_size)//2)))
         return regions
 
     @torch.no_grad()
     def _embed(self, img: Image.Image) -> np.ndarray:
-        tensor = self.preprocess(img.convert("RGB")).unsqueeze(0).to(self.device)
-        feat = self.model.encode_image(tensor)
+        tensor = self._preprocess(img.convert("RGB")).unsqueeze(0).to(self.device)
+        feat = self._model.encode_image(tensor)
         feat = feat / feat.norm(dim=-1, keepdim=True)
         return feat.cpu().numpy().astype(np.float32)[0]
 
-    def _region_selective_embed(self, img: Image.Image) -> np.ndarray:
+    def match(self, img: Image.Image, top_k: int = 3) -> Dict:
+        # Load resources just-in-time
+        self._load_resources()
+
         regions = self._get_regions(img)
-        embeddings = [self._embed(r) for r in regions]
-        return np.mean(embeddings, axis=0)
+        # Compute mean embedding of regions
+        q = np.mean([self._embed(r) for r in regions], axis=0)
 
-    def match(self, img: Image.Image, top_k: int = 3,
-              threshold: float = CONFIDENCE_THRESHOLD) -> Dict:
-
-        q = self._region_selective_embed(img)
-        sims = self.embeddings @ q
+        # Compute similarity
+        sims = self._embeddings @ q
 
         per_artifact = []
         for lab, idxs in self._by_label.items():
@@ -89,11 +83,8 @@ class ArtifactMatcher:
 
         per_artifact.sort(key=lambda x: x[1], reverse=True)
         top = per_artifact[:top_k]
-
         best_id, best_sim = top[0]
 
-        # === "DO IT ANYWAY" MODE ===
-        # Always return the best match (even if below threshold)
         return {
             "match": {
                 "artifact_id": best_id,
@@ -103,11 +94,17 @@ class ArtifactMatcher:
                 {"artifact_id": aid, "confidence": round(s, 4)}
                 for aid, s in top
             ],
-            "threshold": threshold,
-            "recognized": True,                    # Always true now
+            "recognized": True,
             "message": None,
         }
 
+    def __del__(self):
+        """Cleanup memory on shutdown."""
+        if self._model is not None:
+            del self._model
+            del self._embeddings
+            if self.device == "cuda":
+                torch.cuda.empty_cache()
 
 def _cli():
     if len(sys.argv) < 2:
@@ -117,7 +114,6 @@ def _cli():
     img = Image.open(sys.argv[1])
     result = matcher.match(img)
     print(json.dumps(result, indent=2))
-
 
 if __name__ == "__main__":
     _cli()
