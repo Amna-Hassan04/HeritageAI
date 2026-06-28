@@ -48,7 +48,7 @@ export default function TourPlannerPage() {
 
     try {
       // FIX: Use VITE_API_BASE_URL from environment variables for production
-      const BASE_URL = "https://heritageai-cnn1.onrender.com";
+      const baseUrl = "https://heritageai-cnn1.onrender.com";
 
       const response = await fetch(`${baseUrl}/api/planner`, {
         method: 'POST',
