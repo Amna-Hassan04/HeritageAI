@@ -88,9 +88,8 @@ const HomePage = ({ setCurrentPage }) => {
               Your personal guide to South Asian heritage. Upload artifacts, discover stories, and experience history through cutting-edge AI technology.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
+              {/* FIXED: Removed duplicate onClick and className properties */}
               <button
-                onClick={() => setCurrentPage(user ? 'ar' : 'signup')}
-                className="bg-amber-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-amber-700 transition flex items-center justify-center space-x-2 shadow-lg"
                 onClick={() => setCurrentPage(user ? 'upload' : 'signup')}
                 className="bg-amber-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-amber-700 transition flex items-center justify-center space-x-2 shadow-lg shadow-amber-950/20"
               >
@@ -485,9 +484,8 @@ const HomePage = ({ setCurrentPage }) => {
           <p className="text-xl text-amber-50 mb-8">
             Join thousands discovering Pakistan's rich cultural heritage
           </p>
+          {/* FIXED: Removed duplicate onClick and className properties */}
           <button
-            onClick={() => setCurrentPage(user ? 'ar' : 'signup')}
-            className="bg-white text-amber-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition inline-flex items-center space-x-2"
             onClick={() => setCurrentPage(user ? 'upload' : 'signup')}
             className="bg-white text-amber-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition inline-flex items-center space-x-2 shadow-md"
           >
