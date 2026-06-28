@@ -543,7 +543,7 @@ def ar_feedback(payload: FeedbackPayload):
     return {"status": "logged"}
 
 try:
-    from planner_router import router as planner_router
+    from .planner_router import router as planner_router
     app.include_router(planner_router)
 except ImportError:
     print("⚠️ planner_router not found, skipping.")
