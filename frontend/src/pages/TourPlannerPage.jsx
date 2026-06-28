@@ -47,7 +47,10 @@ export default function TourPlannerPage() {
     setAgentStatus('🌐 Validator Node processing real-time News API travel warnings...');
 
     try {
-      const response = await fetch('http://localhost:8000/api/planner', {
+      // FIX: Use VITE_API_BASE_URL from environment variables for production
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+      const response = await fetch(`${baseUrl}/api/planner`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +70,7 @@ export default function TourPlannerPage() {
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg('Failed to reach backend execution layer. Please ensure your local Uvicorn process is running on port 8000.');
+      setErrorMsg('Failed to reach backend execution layer. Please check console for API path errors.');
     } finally {
       setLoading(false);
     }
